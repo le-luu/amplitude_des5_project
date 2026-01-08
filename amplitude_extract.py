@@ -71,6 +71,7 @@ while count< number_of_retries:
         data = response.content 
         filepath = f"{dir}/data_{filename}.zip"
         print('Data retrieved successfully.')
+        logger.info('Data retrieved successfully.')
 
         # JSON data files saved to a zip folder 'data.zip'
         with open(filepath, 'wb') as file:
