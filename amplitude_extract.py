@@ -39,6 +39,7 @@ count = 0
 
 while count< number_of_retries:
     try:
+        logger.info(f"Sending request to Amplitude API: {url} with params: {params}")
         response = requests.get(url, params=params, auth=(api_key, secret_key),timeout=10)
     except requests.exceptions.RequestException as e:
         print(f"Request failed: {e}")
