@@ -4,6 +4,10 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta
 import logging
 import time
+import zipfile 
+import gzip
+import shutil
+import tempfile
 
 # API endpoint is the EU residency server
 url = 'https://analytics.eu.amplitude.com/api/2/export'
@@ -68,10 +72,12 @@ while count< number_of_retries:
             os.mkdir(dir)
         
         data = response.content 
-        filepath = f"{dir}/data_{filename}.zip"
+        #filepath = f"{dir}/data_{filename}.zip"
+        filepath = os.path.join(dir, f"data_{filename}.zip")
         print('Data retrieved successfully.')
         logger.info('Data retrieved successfully.')
-        
+
+        # Write zip files into directory
         try:
             with open(filepath, 'wb') as file:
                 file.write(data)
@@ -81,6 +87,41 @@ while count< number_of_retries:
             print(f"Error writing file: {e}")
             logger.error(f"Error writing file: {e}")
 
+        with zipfile.ZipFile(filepath, 'r') as zip_ref:
+            #file_unzip_path = dir+f"/data_{filename}"
+            file_unzip_path = os.path.join(dir, f"data_{filename}")
+            if not os.path.exists(file_unzip_path):
+                os.mkdir(file_unzip_path)
+                zip_ref.extractall(file_unzip_path)
+                print(f"Unzip Amplitude data successful at {file_unzip_path}")
+                logger.info(f"Unzip Amplitude data successful at {file_unzip_path}")
+
+        #Access to the Account folder after unzipping the zip files
+        day_folder = next(f for f in os.listdir(file_unzip_path) if f.isdigit())
+        day_folder_path = os.path.join(file_unzip_path, day_folder)
+
+        for root, _, files in os.walk(day_folder_path):
+            for file in files:
+                if file.endswith('.gz'):
+                    # Process each .gz file
+                    gz_path = os.path.join(root, file)
+                    json_file_name = file[:-3]
+                    output_path = os.path.join(root, json_file_name)
+                    try:
+                        with gzip.open(gz_path, 'rb') as gz_file, open(output_path, 'wb') as out_file:
+                            shutil.copyfileobj(gz_file, out_file)
+                    except Exception as e:
+                        print(f"Error when decompressing file {file}: {e}")
+                        logger.error(f"Error when decompressing file {file}: {e}")
+        print("Decompressed all .gz files successfully. All json files are ready at: ",day_folder_path)
+        logger.info("Decompressed all .gz files successfully.")
+        
+        for root, _, files in os.walk(day_folder_path):
+            for file in files:
+                if file.endswith('.gz'):
+                    os.remove(os.path.join(root, file))
+        print("Removed all .gz files successfully.")
+        logger.info("Removed all .gz files successfully.")
         break
 
     elif response_code > 499 or response_code < 200:
