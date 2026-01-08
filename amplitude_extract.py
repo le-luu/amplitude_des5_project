@@ -8,6 +8,7 @@ import time
 # API endpoint is the EU residency server
 url = 'https://analytics.eu.amplitude.com/api/2/export'
 filename = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+
 params = {
         'start': '20251208T00',
         'end': '20260108T09'
@@ -23,7 +24,6 @@ secret_key=os.getenv('AMP_SECRET_KEY')
 logs_dir = "logs"
 if not os.path.exists(logs_dir):
     os.mkdir(logs_dir)
-
 
 log_filename = f"logs/logging_data_{filename}.log"
 logging.basicConfig(
