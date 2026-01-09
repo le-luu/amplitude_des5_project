@@ -7,7 +7,6 @@ import time
 import zipfile 
 import gzip
 import shutil
-import tempfile
 
 # API endpoint is the EU residency server
 url = 'https://analytics.eu.amplitude.com/api/2/export'
