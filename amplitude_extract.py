@@ -37,7 +37,7 @@ logging.basicConfig(
 logger = logging.getLogger()
 
 # Send request and get response
-number_of_retries = 20
+number_of_retries = 5
 count = 0
 
 while count< number_of_retries:
@@ -72,7 +72,6 @@ while count< number_of_retries:
             os.mkdir(dir)
         
         data = response.content 
-        #filepath = f"{dir}/data_{filename}.zip"
         filepath = os.path.join(dir, f"data_{filename}.zip")
         print('Data retrieved successfully.')
         logger.info('Data retrieved successfully.')
@@ -88,7 +87,6 @@ while count< number_of_retries:
             logger.error(f"Error writing file: {e}")
 
         with zipfile.ZipFile(filepath, 'r') as zip_ref:
-            #file_unzip_path = dir+f"/data_{filename}"
             file_unzip_path = os.path.join(dir, f"data_{filename}")
             if not os.path.exists(file_unzip_path):
                 os.mkdir(file_unzip_path)
