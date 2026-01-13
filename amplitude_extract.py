@@ -13,12 +13,6 @@ url = 'https://analytics.eu.amplitude.com/api/2/export'
 filename = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
 #Get the start date from 7 days ago to today
-prev_7_days = datetime.now() - timedelta(days=7)
-
-params = {
-        'start': prev_7_days.strftime('%Y%m%dT00'),
-        'end': datetime.now().strftime('%Y%m%dT00')
-}
 
 #Load API Keys
 load_dotenv()
@@ -39,8 +33,13 @@ logging.basicConfig(
 logger = logging.getLogger()
 
 #Extract Amplitude Data function
-def extract_amplitude_data():
-
+def extract_amplitude_data(start_time, end_time):
+    params = {
+        # 'start': prev_7_days.strftime('%Y%m%dT00'),
+        # 'end': datetime.now().strftime('%Y%m%dT00')
+        'start': start_time,
+        'end': end_time
+    }
     #There are 5 retries for failed requests
     number_of_retries = 5
     attempt = 0
@@ -99,7 +98,7 @@ def extract_amplitude_data():
                 logger.error(f"Error writing file: {e}")
 
             #Unzip and decompress the Amplitude data to JSON files
-            unzip_amplitude_data(filepath, dir, filename)
+            data_folder_path = unzip_amplitude_data(filepath, dir, filename)
 
             print("Decompressed all .gz files successfully.")
             logger.info("Decompressed all .gz files successfully.")
@@ -119,9 +118,34 @@ def extract_amplitude_data():
 
     logger.info("Process Finished")
     print("Process Finished")
+    # print(os.getcwd())
+    # print(f"All JSON files are ready at: {data_folder_path}")
+    data_path = os.path.join(os.getcwd(), data_folder_path)
+    #print(f"Start time: {prev_7_days.strftime('%Y%m%d')}, End time: {datetime.now().strftime('%Y%m%d')}")
+    #print(f"All JSON files are ready at: {data_path}")
+    # min_date= prev_7_days.strftime('%Y%m%d')
+    # max_date= datetime.now().strftime('%Y%m%d')
+
+    #create a list to fill in data between min_date and max_date
+    #and add postfix time 00 to 23 hours for each date
+    date_list = []
+    while start_time <= end_time:
+        for hour in range(24):
+            date_list.append(f"{start_time[:-2]}{hour:02d}")
+        min_date_dt = datetime.strptime(start_time, '%Y%m%dT%H')
+        min_date_dt += timedelta(days=1)
+        start_time = min_date_dt.strftime('%Y%m%dT00')
+
+    return data_path, date_list
+
 
 def main():
-    extract_amplitude_data()
+    #call the extract amplitude data function
+    prev_7_days = datetime.now() - timedelta(days=7)
+    start_time = prev_7_days.strftime('%Y%m%dT00')
+    end_time = datetime.now().strftime('%Y%m%dT00')
+    
+    extract_amplitude_data(start_time, end_time)
 
 if __name__ == "__main__":
     main()
