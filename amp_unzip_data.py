@@ -40,7 +40,6 @@ def unzip_amplitude_data(filepath, dir,filename):
                         shutil.copyfileobj(gz_file, out_file)
                 except Exception as e:
                     print(f"Error when decompressing file {file}: {e}")
-                    #logger.error(f"Error when decompressing file {file}: {e}")
     print("Decompressed all .gz files successfully. All json files are ready at: ",day_folder_path)
     #logger.info("Decompressed all .gz files successfully.")
     
@@ -50,4 +49,5 @@ def unzip_amplitude_data(filepath, dir,filename):
             if file.endswith('.gz'):
                 os.remove(os.path.join(root, file))
     print("Removed all .gz files successfully.")
+    return day_folder_path
     #logger.info("Removed all .gz files successfully.")

@@ -99,7 +99,7 @@ def extract_amplitude_data():
                 logger.error(f"Error writing file: {e}")
 
             #Unzip and decompress the Amplitude data to JSON files
-            unzip_amplitude_data(filepath, dir, filename)
+            data_folder_path = unzip_amplitude_data(filepath, dir, filename)
 
             print("Decompressed all .gz files successfully.")
             logger.info("Decompressed all .gz files successfully.")
@@ -119,8 +119,29 @@ def extract_amplitude_data():
 
     logger.info("Process Finished")
     print("Process Finished")
+    # print(os.getcwd())
+    # print(f"All JSON files are ready at: {data_folder_path}")
+    data_path = os.path.join(os.getcwd(), data_folder_path)
+    #print(f"Start time: {prev_7_days.strftime('%Y%m%d')}, End time: {datetime.now().strftime('%Y%m%d')}")
+    #print(f"All JSON files are ready at: {data_path}")
+    min_date= prev_7_days.strftime('%Y%m%d')
+    max_date= datetime.now().strftime('%Y%m%d')
+
+    #create a list to fill in data between min_date and max_date
+    #and add postfix time 00 to 23 hours for each date
+    date_list = []
+    while min_date <= max_date:
+        for hour in range(24):
+            date_list.append(f"{min_date}{hour:02d}")
+        min_date_dt = datetime.strptime(min_date, '%Y%m%d')
+        min_date_dt += timedelta(days=1)
+        min_date = min_date_dt.strftime('%Y%m%d')
+
+    return data_path, date_list
+
 
 def main():
+    #call the extract amplitude data function
     extract_amplitude_data()
 
 if __name__ == "__main__":
