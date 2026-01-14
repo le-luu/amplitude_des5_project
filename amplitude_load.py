@@ -12,15 +12,19 @@ AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
 AWS_SECRET_KEY = os.getenv('AWS_SECRET_KEY')
 AWS_BUCKET_NAME = os.getenv('AWS_BUCKET_NAME')
 
-session = boto3.Session(
-    profile_name= 'default'
-)
+# session = boto3.Session(
+#     profile_name= 'default'
+# )
 
-s3_client = session.client(
-    's3'#,
-    # aws_access_key_id=AWS_ACCESS_KEY,
-    #aws_secret_access_key=AWS_SECRET_KEY
-)
+# s3_client = session.client(
+#     's3'#,
+#     # aws_access_key_id=AWS_ACCESS_KEY,
+#     #aws_secret_access_key=AWS_SECRET_KEY
+# )
+
+s3_client = boto3.client('s3',
+                         aws_access_key_id=AWS_ACCESS_KEY,
+                         aws_secret_access_key=AWS_SECRET_KEY)
 
 #List_s3_objects to list all files in the bucket and the prefix name
 def list_s3_objects(AWS_BUCKET_NAME, prefix_name):

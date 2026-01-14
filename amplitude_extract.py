@@ -128,15 +128,15 @@ def extract_amplitude_data(start_time, end_time):
 
     #create a list to fill in data between min_date and max_date
     #and add postfix time 00 to 23 hours for each date
-    date_list = []
-    while start_time <= end_time:
-        for hour in range(24):
-            date_list.append(f"{start_time[:-2]}{hour:02d}")
-        min_date_dt = datetime.strptime(start_time, '%Y%m%dT%H')
-        min_date_dt += timedelta(days=1)
-        start_time = min_date_dt.strftime('%Y%m%dT00')
+    # date_list = []
+    # while start_time <= end_time:
+    #     for hour in range(24):
+    #         date_list.append(f"{start_time[:-2]}{hour:02d}")
+    #     min_date_dt = datetime.strptime(start_time, '%Y%m%dT%H')
+    #     min_date_dt += timedelta(days=1)
+    #     start_time = min_date_dt.strftime('%Y%m%dT00')
 
-    return data_path, date_list
+    #return data_path, date_list
 
 
 def main():
