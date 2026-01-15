@@ -4,7 +4,7 @@ import gzip
 import shutil
 
 #Unzip and decompress the Amplitude data to JSON files
-def unzip_amplitude_data(filepath, dir,filename):
+def unzip_amplitude_data(filepath, dir,filename, logger):
 
     #Unzip the Amplitude zip files
     with zipfile.ZipFile(filepath, 'r') as zip_ref:
@@ -16,8 +16,8 @@ def unzip_amplitude_data(filepath, dir,filename):
             #Extract all the contents of zip file in file_unzip_path directory
             zip_ref.extractall(file_unzip_path)
             print(f"Unzip Amplitude data successful at {file_unzip_path}")
-            #logger.info(f"Unzip Amplitude data successful at {file_unzip_path}") 
-
+            logger.info(f"Unzip Amplitude data successful at {file_unzip_path}")
+        
     #Access to the Account folder after unzipping the zip files
     #iterate to all folders and check if the folder is digit
     day_folder = next(f for f in os.listdir(file_unzip_path) if f.isdigit())
@@ -40,8 +40,9 @@ def unzip_amplitude_data(filepath, dir,filename):
                         shutil.copyfileobj(gz_file, out_file)
                 except Exception as e:
                     print(f"Error when decompressing file {file}: {e}")
+                    logger.error(f"Error when decompressing file {file}: {e}")
     print("Decompressed all .gz files successfully. All json files are ready at: ",day_folder_path)
-    #logger.info("Decompressed all .gz files successfully.")
+    logger.info("Decompressed all .gz files successfully.")
     
     #Remove all .gz files after decompression
     for root, _, files in os.walk(day_folder_path):
@@ -49,5 +50,6 @@ def unzip_amplitude_data(filepath, dir,filename):
             if file.endswith('.gz'):
                 os.remove(os.path.join(root, file))
     print("Removed all .gz files successfully.")
+    logger.info("Removed all .gz files successfully.")
+
     return day_folder_path
-    #logger.info("Removed all .gz files successfully.")
