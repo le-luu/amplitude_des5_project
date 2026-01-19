@@ -23,7 +23,7 @@ def list_s3_objects(s3_client, AWS_BUCKET_NAME, prefix_name):
                     for f in files
                 ]
             #Keep the left 8 digits (which is 4 digits of the year, 2 digits of the month, 2 digits of the year)
-            files = [f[:8] + f[8:].rjust(2, '0') for f in files]
+            files = [f[:8] +"T"+ f[8:].rjust(2, '0') for f in files]
     #Store number of files in a variable 
     num_obj_s3 = len(files)
 
@@ -33,7 +33,7 @@ def list_s3_objects(s3_client, AWS_BUCKET_NAME, prefix_name):
 def upload_files_to_s3(s3_client, AWS_BUCKET_NAME, local_data_path, prefix_name, logger):
 
     uploaded_files_num = 0
-
+    local_files_list = []
     #walk through the folder stored json files
     for root, _, files in os.walk(local_data_path):
         print("Start Accessing to the folder to upload JSON files")
@@ -50,6 +50,8 @@ def upload_files_to_s3(s3_client, AWS_BUCKET_NAME, local_data_path, prefix_name,
                         aws_file_destination = prefix_name+ "/" + file
                         s3_client.upload_file(file_path, AWS_BUCKET_NAME, aws_file_destination)
                         uploaded_files_num += 1
+
+                        local_files_list.append(file)
                         #Remove the JSON files in local drive
                         os.remove(file_path)
 
@@ -67,3 +69,11 @@ def upload_files_to_s3(s3_client, AWS_BUCKET_NAME, local_data_path, prefix_name,
 
     print(f"All {uploaded_files_num} files uploaded successfully. Loading End!")
     logger.info(f"All {uploaded_files_num} files uploaded successfully. Loading End!")
+
+    local_files_list = [f.split("_", 1)[1].split("#", 1)[0]
+                    .replace("-", "")
+                    .replace("_", "")
+                    for f in local_files_list]
+    local_files_list = [f[:8] +"T"+ f[8:].rjust(2, '0') for f in local_files_list]
+    
+    return local_files_list
