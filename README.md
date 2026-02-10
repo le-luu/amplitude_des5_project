@@ -11,13 +11,19 @@ This project is about extracting data from AMPLITUDE API. After extracting data 
 ├── .gitignore
 ├── LICENSE
 ├── README.md
-├── amplitude_extract.py
+├── modules
+    ├── amp_extract.py
+    ├── amp_find_missing_files.py
+    ├── amp_load.py
+    ├── amp_unzip_data.py
+    ├── logging.py
+├── amplitude_main.py
 ├── requirements.txt
 ```
 
 ## Explanation
 
-<img src="https://github.com/le-luu/amplitude_des5_project/blob/main/img/diagram.png" />
+<img src="https://github.com/le-luu/amplitude_des5_project/blob/main/img/extract_loading_data.png" />
 
 Diagram of the AMPLITUDE Project
 
@@ -155,6 +161,25 @@ After getting the ZIP file from the step above, then unzip the ZIP file by using
 - Remove the gz files and only keep the JSON files
 - Handle errors, print out the screen and write to the log file for each step
 
+### Find missing data when loading data to S3 bucket
+
+After loading data to S3 bucket, compare the files just uploaded to S3 successfully and local files. If any files in the local list not in the s3_list, then store those file names.
+
+```python
+def find_missing_files(local_list,s3_list, logger):
+    s3_set = set(s3_list)
+    missing_in_s3_list = [f for f in local_list if f not in s3_set]
+    if len(missing_in_s3_list) > 0:
+        print(f"{len(missing_in_s3_list)} file(s) couldn't upload to S3")
+        logger.error(f"{len(missing_in_s3_list)} file(s) couldn't upload to S3")
+    else:
+        print("All files successfully uploaded to S3")
+        logger.info("All files successfully uploaded to S3")
+    return missing_in_s3_list, len(missing_in_s3_list)
+```
+
+Then, return the missing file list and number of missing files in the list. Later, in the main function, if the number of missing files is greater than 0, then extract and load the missing files to S3.
+
 ### Handle errors and write to log after running whole program
 
 Print the response code and the reason after sending the request.
@@ -180,10 +205,13 @@ Print the response code and the reason after sending the request.
   ```
   AMP_API_KEY = <YOUR AMPLITUDE API KEY>
   AMP_API_SECRET = <YOUR AMPLITUDE SECRET KEY>
+  
+  AWS_ACCESS_KEY = <YOUR AWS ACCESS KEY>
+  AWS_SECRET_KEY = <YOUR AWS SECRET KEY>
+  AWS_REGION = <THE REGION of AWS>
+  AWS_BUCKET_NAME = <NAME OF S3 BUCKET>
   ```
-- Open the amplitude_extract.py file on Text Editor
-  Change the start and end param with format: YYYYMMDDT<hour from 00 to 24>
 - Run the Python script:
   ```
-  python amplitude_extract.py
+  python amplitude_main.py
   ```
